@@ -21,7 +21,62 @@
     <div id="outputArea"></div>
 
     <script>
-        // (前のスクリプトと同じ)
+        function splitMessage(message) {
+            return [...message].map(c => c.charCodeAt(0));
+        }
+
+        function splitPassword(password) {
+            return [...password].map(c => c.charCodeAt(0));
+        }
+
+        function encryptMessage(message, password) {
+            const cleartext = splitMessage(message);
+            const passwordCodes = splitPassword(password);
+            const repeatedPassword = (passwordCodes.concat(...Array(Math.floor(cleartext.length / passwordCodes.length)).fill(passwordCodes))).concat(passwordCodes.slice(0, cleartext.length % passwordCodes.length));
+            const encryptedValue = [];
+            for (let i = 0; i < cleartext.length; i++) {
+                const diff = cleartext[i] - repeatedPassword[i];
+                const bigger = diff < 0 ? 1 : 0;
+                encryptedValue.push(Math.abs(diff), bigger);
+            }
+            return encryptedValue;
+        }
+
+        function decryptMessage(encryptedValue, password) {
+            const passwordCodes = splitPassword(password);
+            const passwordLength = passwordCodes.length;
+            let decryptedMessage = "";
+
+            for (let i = 0; i < encryptedValue.length; i += 2) {
+                const diff = encryptedValue[i];
+                const bigger = encryptedValue[i + 1];
+                const passwordIndex = Math.floor(i / 2) % passwordLength;
+
+                let decryptedChar;
+                if (bigger === 1) {
+                    decryptedChar = String.fromCharCode(passwordCodes[passwordIndex] + diff);
+                } else {
+                    decryptedChar = String.fromCharCode(passwordCodes[passwordIndex] - diff);
+                }
+
+                decryptedMessage += decryptedChar;
+            }
+
+            return decryptedMessage;
+        }
+
+        function printHelp() {
+            return "コマンド一覧:\n- encrypt/message/password: メッセージを暗号化します。\n- decrypt/encryptedMessage/password: 暗号文を復号化します。\n- help: ヘルプを表示します。\n- exit: プログラムを終了します。\n\nコマンドの文型と例:\n1. encrypt/message/password:\n- 文型: encrypt/HelloWorld/MySecretPassword\n- 例: encrypt/HelloWorld/MySecretPassword\n2. decrypt/encryptedMessage/password:\n- 文型: decrypt/[8,1,2,0,5,1,1,1,0,2]/MySecretPassword\n- 例: decrypt/[8,1,2,0,5,1,1,1,0,2]/MySecretPassword\n3. help:\n- 文型: help\n- 例: help\n4. exit:\n- 文型: exit\n- 例: exit";
+        }
+
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+        }
 
         function main() {
             const commandForm = document.getElementById("commandForm");
@@ -55,7 +110,9 @@
                         const encryptedValue = JSON.parse(args[1]);
                         const password = args[2];
                         const decryptedMessage = decryptMessage(encryptedValue, password);
-                        outputArea.textContent = "復号化されたメッセージ: " + decryptedMessage;
+                        const resultDiv = document.createElement("div");
+                        resultDiv.textContent = "復号化されたメッセージ: " + decryptedMessage;
+                        outputArea.appendChild(resultDiv);
                     } else {
                         outputArea.textContent = "コマンドの引数が不正です。";
                     }
