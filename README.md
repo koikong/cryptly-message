@@ -6,7 +6,7 @@
     <title>メッセージ暗号化/復号化プログラム</title>
 </head>
 <body>
-    <h2>Commands:</h2>
+    <h2>cryptlymessage2.0:</h2>
     <p>1. <strong>encrypt/message/password:</strong> メッセージを暗号化します。</p>
     <p>2. <strong>decrypt/password:</strong> 暗号文を復号化します。</p>
     <p>3. <strong>help:</strong> ヘルプを表示します。</p>
